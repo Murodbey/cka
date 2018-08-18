@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    k8s-app: ubuntu-pod
+  name: ubuntu-pod
+  namespace: default
+spec:
+  containers:
+  - command:
+    - sleep
+    - "10800"
+    image: ubuntu:16.04
+    name: ubuntu-pod
