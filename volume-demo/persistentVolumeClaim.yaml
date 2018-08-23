@@ -11,7 +11,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 500Mi
+      storage: 3Gi
   selector:
     matchLabels:
       type: local
