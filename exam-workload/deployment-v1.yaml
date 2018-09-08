@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-v1
+  name: dp-httpd
   labels:
-    k8s-app: deployment-v1
+    k8s-app: dp-httpd
   annotations:
-    version: v1
+    version: task1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: httpd
+      app: http
   template:
     metadata:
       labels:
-        app: httpd
+        app: http
     spec:
       containers:
-      - name: container-httpd
+      - name: container-http
         image: httpd:2.4
         imagePullPolicy: Always
         resources:

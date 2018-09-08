@@ -31,3 +31,6 @@
 23) Work on above Volumes using PV/PVC form.
 24) Enable Audit Policy  and see Logs
 25) SSL Rotation
+26) Pod Priority
+27) Pod Preset
+28) 
