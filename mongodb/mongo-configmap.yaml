@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-conf
+data:
+  mongo.conf: |
+    net:
+      port: 27017
+      bindIpAll: true
+
+    security:
+      keyFile: /etc/mongo/mongo-keyfile
+
+    replication:
+      replSetName: rs0

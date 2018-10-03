@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: nfs-server
+  name: nfs-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: nfs-server
+  template:
+    metadata:
+      labels:
+        run: nfs-server
+    spec:
+      containers:
+      - name: nfs-server
+        image: itsthenetwork/nfs-server-alpine:9
+        env:
+        - name: SHARED_DIRECTORY
+          value: /nfsshare
+        #ports:
+        #- containerPort: 2049
+        #  name: nfs
+        securityContext:
+          capabilities:
+            add:
+            - SYS_ADMIN
+            - SETPCAP
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /nfsshare
+      nodeSelector:
+        kubernetes.io/hostname: 10.23.20.24 
+      volumes:
+      - name: data
+        hostPath:
+          path: /tmp/data
+      tolerations:
+      - key: "role"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      hostNetwork: true
