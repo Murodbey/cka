@@ -1,0 +1,46 @@
+------------
+Log Message
+------------
+16.29.176.72 - - [30/Sep/2018:11:05:04 +0000] "GET /backoffice/widgetJarResource/de.hybris.platform.customersupportbackoffice.widgets.customersupportrefineby/customersupportrefineby.css HTTP/1.1" 200 3794 "https://hc9t06557.itcs.hpecorp.net:9002/backoffice/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+
+
+---------------------
+Logstash Filter Code
+---------------------
+filter {
+  grok {
+    match => { "message" => "%{IPORHOST:[nginx][access][remote_ip]} - %{DATA:[nginx][access][user_name]} \[%{HTTPDATE:[nginx][access][time]}\] \"%{WORD:[nginx][access][method]} %{DATA:[nginx][access][url]} HTTP/%{NUMBER:[nginx][access][http_version]}\" %{NUMBER:[nginx][access][response_code]} (%{NUMBER:[nginx][access][body_sent][bytes]}|%{DATA:[nginx][access][body_sent][bytes]}) \"%{DATA:[nginx][access][referrer]}\" \"%{DATA:[nginx][access][agent]}\"" }
+  }
+}
+
+
+-----------------
+Logstash Output
+-----------------
+{
+  "@version": "1",
+  "nginx": {
+    "access": {
+      "method": "GET",
+      "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36",
+      "time": "30/Sep/2018:11:05:04 +0000",
+      "url": "/backoffice/widgetJarResource/de.hybris.platform.customersupportbackoffice.widgets.customersupportrefineby/customersupportrefineby.css",
+      "body_sent": {
+        "bytes": "3794"
+      },
+      "http_version": "1.1",
+      "response_code": "200",
+      "referrer": "https://hc9t06557.itcs.hpecorp.net:9002/backoffice/",
+      "remote_ip": "16.29.176.72",
+      "user_name": "-"
+    }
+  },
+  "host": "VM-006",
+  "message": "16.29.176.72 - - [30/Sep/2018:11:05:04 +0000] \"GET /backoffice/widgetJarResource/de.hybris.platform.customersupportbackoffice.widgets.customersupportrefineby/customersupportrefineby.css HTTP/1.1\" 200 3794 \"https://hc9t06557.itcs.hpecorp.net:9002/backoffice/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36\"",
+  "@timestamp": "2018-10-04T06:11:48.372Z",
+  "path": "/tmp/access..2018-09-30.log"
+}
+
+
+
+

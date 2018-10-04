@@ -1,0 +1,40 @@
+------------
+Log Message
+------------
+INFO   | jvm 1    | main    | 2018/09/30 00:00:05.312 | ESC[32mINFO  [hpeProductNewOrUpdatedCronJob::de.hybris.platform.servicelayer.internal.jalo.ServicelayerJob] (hpeProductNewOrUpdatedCronJob) [HPEProductNewOrUpdatedJob] Started HPEProductNewOrUpdatedJob!!!
+
+
+---------------------
+Logstash Filter Code
+---------------------
+filter {
+  csv {
+    columns => ["LOG_TYPE","JVM_NAME","FUNCTION_NAME","DATE","LOG"]
+    separator => "|"
+  }
+  mutate {
+    strip => ["LOG_TYPE","JVM_NAME","FUNCTION_NAME","DATE","LOG"]
+  }
+}
+
+
+-----------------
+Logstash Output
+-----------------
+{
+  "DATE": "2018/09/30 00:00:05.312",
+  "message": "INFO   | jvm 1    | main    | 2018/09/30 00:00:05.312 | \u001B[32mINFO  [hpeProductNewOrUpdatedCronJob::de.hybris.platform.servicelayer.internal.jalo.ServicelayerJob] (hpeProductNewOrUpdatedCronJob) [HPEProductNewOrUpdatedJob] Started HPEProductNewOrUpdatedJob!!!",
+  "FUNCTION_NAME": "main",
+  "path": "/tmp/console-20180930.log",
+  "@version": "1",
+  "JVM_NAME": "jvm 1",
+  "host": "VM-006",
+  "LOG": "\u001B[32mINFO  [hpeProductNewOrUpdatedCronJob::de.hybris.platform.servicelayer.internal.jalo.ServicelayerJob] (hpeProductNewOrUpdatedCronJob) [HPEProductNewOrUpdatedJob] Started HPEProductNewOrUpdatedJob!!!",
+  "LOG_TYPE": "INFO",
+  "@timestamp": "2018-10-04T05:35:20.767Z"
+}
+
+
+
+
+

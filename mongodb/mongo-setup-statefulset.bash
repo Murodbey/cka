@@ -1,3 +1,11 @@
+Reference URLs
+---------------
+https://blog.karmacomputing.co.uk/how-to-create-mongodb-replica-set-with-authentication-ubuntu-16-04/
+https://www.linode.com/docs/databases/mongodb/create-a-mongodb-replica-set/
+https://docs.mongodb.com/manual/introduction/
+https://kubernetes.io/blog/2017/01/running-mongodb-on-kubernetes-with-statefulsets/
+
+
 1) Create Namespace in Kubernetes
 $ kubectl create ns mongo
 
