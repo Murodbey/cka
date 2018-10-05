@@ -1,0 +1,115 @@
+------------
+Log Message
+------------
+2018-10-04 21:50:43.769 INFO  (qtp575335780-50) [   x:master_hpeGlobal_HPEProduct_flip] o.a.s.r.RestManager [master_hpeGlobal_HPEProduct_flip]  webapp=/solr path=/schema/managed params={wt=javabin&version=2} status=0 QTime=1
+2018-10-04 21:50:43.778 INFO  (qtp575335780-53) [   x:master_hpeGlobal_HPEProduct_flip] o.a.s.r.RestManager Found ManagedResource [org.apache.solr.rest.schema.analysis.ManagedSynonymGraphFilterFactory$SynonymManager@3ad60d58] for /schema/analysis/synonyms/en
+
+
+---------------------
+Logstash Filter Code
+---------------------
+filter {
+  # Extract event severity and timestamp
+  grok {
+    match => { "message" => "%{TIMESTAMP_ISO8601:LogTime} %{WORD:level}" }
+    tag_on_failure => []
+  }
+  
+  # INFO level events treated differently than ERROR
+  if "INFO" in [level] {
+    grok {
+      match => {
+          "message" => ".*\(%{DATA}\)%{SPACE}\[%{SPACE}%{DATA}\]%{SPACE}%{DATA:code_type}%{SPACE}\[%{WORD:collection}\].+?%{SPACE}webapp=%{DATA:webapp_path} path=%{DATA:endpoint} params=\{%{DATA:params}\} status=%{NUMBER:status} QTime=%{NUMBER:QTime}"
+        }
+        tag_on_failure => []  
+    }
+    if [params] {
+      kv {
+        field_split => "&"
+        source => "params"
+      }
+    } else {
+      grok {
+        match => {
+          "message" => ".*\(%{DATA}\)%{SPACE}\[%{SPACE}%{DATA}\]%{SPACE}%{GREEDYDATA:rest_all}"  
+        }
+        tag_on_failure => [ "drop" ]
+        add_field => {
+          "action" => "commit"
+        }
+      }
+      #if "drop" in [tags] {
+      #  drop {}
+      #}
+    }
+  }
+
+  ## Error event implies stack track, which requires multiline parsing
+  #if "ERROR" in [level] {
+  #  multiline {
+  #    pattern => "^\s"
+  #    what => "previous"
+  #    add_tag => [ "multiline_pre" ]
+  #  }
+  #  multiline {
+  #      pattern => "^Caused by"
+  #      what => "previous"
+  #      add_tag => [ "multiline_post" ]
+  #  }
+  #  if "multiline_post" in [tags] {
+  #    grok {
+  #      match => {
+  #        "message" => ".+?; ((([a-zA-Z]+(\.|;|:))+) )+%{DATA:reason}(\n\t)((.+?Caused by: ((([a-zA-Z]+(\.|;|:))+) )+)%{DATA:reason}(\n\t))+"
+  #      }
+  #      tag_on_failure => []
+  #    }
+  #  }
+  #}
+
+  ## Remove intermediate tags, and multiline added randomly by multiline stage
+  #mutate {
+  #    remove_tag => [ "multiline_pre", "multiline_post", "multiline" ]
+  #}
+
+  # Drop empty lines
+  if [message] =~ /^\s*$/ {
+    drop {}
+  }   
+  
+}
+
+
+-----------------
+Logstash Output
+-----------------
+{
+  "level": "INFO",
+  "collection": "master_hpeGlobal_HPEProduct_flip",
+  "@timestamp": "2018-10-05T06:16:47.535Z",
+  "status": "0",
+  "endpoint": "/schema/managed",
+  "params": "wt=javabin&version=2",
+  "message": "2018-10-04 21:50:43.769 INFO  (qtp575335780-50) [   x:master_hpeGlobal_HPEProduct_flip] o.a.s.r.RestManager [master_hpeGlobal_HPEProduct_flip]  webapp=/solr path=/schema/managed params={wt=javabin&version=2} status=0 QTime=1",
+  "wt": "javabin",
+  "QTime": "1",
+  "path": "/tmp/solr.log",
+  "host": "VM-006",
+  "version": "2",
+  "LogTime": "2018-10-04 21:50:43.769",
+  "code_type": "o.a.s.r.RestManager",
+  "@version": "1",
+  "webapp_path": "/solr"
+}
+
+{
+  "level": "INFO",
+  "@timestamp": "2018-10-05T06:16:47.535Z",
+  "action": "commit",
+  "rest_all": "o.a.s.r.RestManager Found ManagedResource [org.apache.solr.rest.schema.analysis.ManagedSynonymGraphFilterFactory$SynonymManager@3ad60d58] for /schema/analysis/synonyms/en",
+  "path": "/tmp/solr.log",
+  "host": "VM-006",
+  "message": "2018-10-04 21:50:43.778 INFO  (qtp575335780-53) [   x:master_hpeGlobal_HPEProduct_flip] o.a.s.r.RestManager Found ManagedResource [org.apache.solr.rest.schema.analysis.ManagedSynonymGraphFilterFactory$SynonymManager@3ad60d58] for /schema/analysis/synonyms/en",
+  "LogTime": "2018-10-04 21:50:43.778",
+  "@version": "1"
+}
+
