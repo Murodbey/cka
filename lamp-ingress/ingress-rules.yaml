@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: app-ingress
+  namespace: nginx-ingress
+spec:
+  rules:
+  - host: app1.bharat.com
+    http:
+      paths:
+      - backend:
+          serviceName: appsvc1
+          servicePort: 80
+        path: /
+  - host: app2.bharat.com
+    http:
+      paths:
+      - backend:
+          serviceName: appsvc2
+          servicePort: 80
+        path: /

@@ -1,0 +1,112 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: php-fpm
+  name: php-fpm
+  namespace: nginx-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: php-fpm
+  strategy:
+    rollingUpdate:
+      maxSurge: 10%
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: php-fpm
+    spec:
+      #nodeSelector:
+      #  role: master
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+      - name: shared-files
+        emptyDir: {}
+      containers:
+      - name: php-fpm
+        image: php:fpm-alpine
+        imagePullPolicy: IfNotPresent
+        #args: 
+        #- --key=value
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "7514"
+        - name: MYSQL_USER
+          value: "wordpress"
+        - name: MYSQL_PASSWORD
+          value: "7514"
+        - name: MYSQL_DATABASE
+          value: "radio"
+        - name: VIRTUAL_HOST
+          value: "www.domain.gr,domain.gr"
+        - name: VIRTUAL_PORT
+          value: "9000"
+        - name: VIRTUAL_PROTO
+          value: "fastcgi"
+        - name: VIRTUAL_ROOT
+          value: "/var/www/public"
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        - containerPort: 9000
+          name: web
+          protocol: TCP
+        #livenessProbe:
+        #  failureThreshold: 5
+        #  httpGet:
+        #    path: /healthcheck/kubedns
+        #    port: 10054
+        #    scheme: HTTP
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 10
+        #  successThreshold: 1
+        #  timeoutSeconds: 5
+        #readinessProbe:
+        #  failureThreshold: 3
+        #  httpGet:
+        #    path: /readiness
+        #    port: 8081
+        #    scheme: HTTP
+        #  initialDelaySeconds: 3
+        #  periodSeconds: 10
+        #  successThreshold: 1
+        #  timeoutSeconds: 5
+        #resources:
+        #  limits:
+        #    memory: 170Mi
+        #  requests:
+        #    cpu: 100m
+        #    memory: 70Mi
+        volumeMounts:                                                                                              
+        - name: shared-files
+          mountPath: /var/www/html
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: shared-files
+          mountPath: /var/www/html
+      dnsPolicy: Default
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      #securityContext: {}
+      #serviceAccount: php-fpm
+      #serviceAccountName: php-fpm
+      terminationGracePeriodSeconds: 30
+      #tolerations:
+      #- effect: NoSchedule
+      #  key: node-role.kubernetes.io/master
+      #  operator: Equal
+      #  value: master
