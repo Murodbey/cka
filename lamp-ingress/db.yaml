@@ -2,23 +2,18 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    k8s-app: php-fpm
-  name: php-fpm
+    k8s-app: db
+  name: db
   namespace: nginx-ingress
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: php-fpm
-  strategy:
-    rollingUpdate:
-      maxSurge: 10%
-      maxUnavailable: 0
-    type: RollingUpdate
+      k8s-app: db
   template:
     metadata:
       labels:
-        k8s-app: php-fpm
+        k8s-app: db
     spec:
       nodeSelector:
         role: master
@@ -27,9 +22,8 @@ spec:
         hostPath:
           path: /root/lamp-ingress/data 
       containers:
-      - name: php-fpm
-        #image: php:fpm-alpine
-        image: bhavesh2177/php-fpm-mysql:7
+      - name: db
+        image: mariadb
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -40,22 +34,14 @@ spec:
           value: "7514"
         - name: MYSQL_DATABASE
           value: "radio"
-        - name: VIRTUAL_HOST
-          value: "www.domain.gr,domain.gr"
-        - name: VIRTUAL_PORT
-          value: "9000"
-        - name: VIRTUAL_PROTO
-          value: "fastcgi"
-        - name: VIRTUAL_ROOT
-          value: "/var/www/public"
         ports:
-        - containerPort: 9000
-          name: web
+        - containerPort: 3306
+          name: db
           protocol: TCP
         volumeMounts:                                                                                              
         - name: shared-files
-          mountPath: /var/www/html
-          subPath: app1
+          mountPath: /var/lib/mysql
+          subPath: mariadb
       dnsPolicy: Default
       restartPolicy: Always
       schedulerName: default-scheduler
